@@ -1,3 +1,6 @@
+// ChatWithServer_Server_Part.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
 #include<WinSock2.h>
 #include<WS2tcpip.h>
 #include <iostream>
@@ -55,9 +58,9 @@ int main()
     int clientInfoLen = sizeof(clientInfo);
     
     Log("Waiting for connection ...");
-    //This is the communication socket
+
+    //Accept create a new socket
     int newSocket = accept(masterSocket, (sockaddr*)&clientInfo, &clientInfoLen);
-    
     
     if (newSocket == INVALID_SOCKET)
     {
@@ -72,42 +75,49 @@ int main()
         IP_INFO+= inet_ntop(AF_INET, &clientInfo.sin_addr, &IP[0], sizeof(IP));
 
         Log(IP_INFO.c_str());
-
     }
 
     bool running = true;
     while (running)
     {
-        char bufferMsg[MESSAGE_LENGTH];
-        memset(&bufferMsg, 0, MESSAGE_LENGTH);
+        // -----------------------------
+        // Receive Message from Client
 
-        // Receive message
-        int bytesReceived = recv(newSocket, bufferMsg, MESSAGE_LENGTH, 0);
+        std::cout << std::endl<<"Please, wait for client response ..." << std::endl;
+        std::string clientMsg;
+        clientMsg.resize(MESSAGE_LENGTH);
+        int bytesReceived = recv(newSocket, &clientMsg[0], MESSAGE_LENGTH, 0);
         if (bytesReceived < 0)
         {
             Error("The program failed to read the message from Client ...");
         }
-        std::cout << "CLIENT:: " << bufferMsg<< std::endl;
+        std::cout << std::endl<<"CLIENT Said:: " << clientMsg<< std::endl;
         
-        // reset message buffer
-        memset(&bufferMsg, 0, MESSAGE_LENGTH);
+        // ------------------------
+        // Sending Message to Client
 
-        fgets(bufferMsg, MESSAGE_LENGTH, stdin);
-        int bytesSent= send(newSocket, bufferMsg, MESSAGE_LENGTH, 0);
+        std::cout << "Write your message:> ";
+        std::string serverMsg;
+        serverMsg.resize(MESSAGE_LENGTH);
+        std::getline(std::cin, serverMsg);
+        int bytesSent= send(newSocket, &serverMsg[0], MESSAGE_LENGTH, 0);
         if (bytesSent < 0)
         {
             Error("The Server failed to send message to CLIENT...");
         }
-        
-        int result = strncmp("exit", bufferMsg, 4);
-        if (result == 0)
+        if (serverMsg == "exit" || serverMsg == "bye")
+        {
             running = false;
+        }
     }
 
     closesocket(newSocket);
     closesocket(masterSocket);
 
+    std::cout << std::endl<<"***** Connection Closed *****\n";
+    std::cout << std::endl << "... Press <ENTER> to exit the program ..." << std::endl;
+    std::cin.get();
+
     return 0;
 }
-
 
