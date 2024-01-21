@@ -5,4 +5,4 @@ The client initiates a connection to the server using an IP address. Upon receiv
 
 Server Screen          |  Client Screen   
 :-------------------------:|:-------------------------:
-<img src='server_img.png' width='250'>   |  <img src='client_img.png' width='250'> 
+<img src='server_img.png' width='350'>   |  <img src='client_img.png' width='350'> 
